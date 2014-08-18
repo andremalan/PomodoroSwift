@@ -1,6 +1,6 @@
 //
-//  pomodoroTests.swift
-//  pomodoroTests
+//  PomodoroSwiftTests.swift
+//  PomodoroSwiftTests
 //
 //  Created by Milan Dobrota on 8/17/14.
 //  Copyright (c) 2014 Milan Dobrota. All rights reserved.
@@ -9,7 +9,7 @@
 import Cocoa
 import XCTest
 
-class pomodoroTests: XCTestCase {
+class PomodoroSwiftTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
