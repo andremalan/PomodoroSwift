@@ -12,22 +12,22 @@ import AVFoundation
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     let pomodoroInterval = 25 * 60
+    let timeTitle = "25:00"
     
     @IBOutlet var statusMenu: NSMenu?
     var statusBar = NSStatusBar.systemStatusBar()
     var statusBarItem: NSStatusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-1)
+    var resetItem: NSStatusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-1)
     
     var startTime = NSTimeInterval()
     var timer = NSTimer()
     
-    let ring = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("ring", ofType: "wav"))
+    let ring = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("ring", ofType: "wav")!)
     var ringPlayer: AVAudioPlayer?
     
-    let tick = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("tick", ofType: "wav"))
-    var tickPlayer: AVAudioPlayer?
     
     var running = false
-    
+    var firstPlay = true
 
     func applicationDidFinishLaunching(aNotification: NSNotification?) {
         // Insert code here to initialize your application
@@ -40,34 +40,58 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     override func awakeFromNib() {
         statusBarItem.menu = statusMenu
-        statusBarItem.title = "25:00"
+        statusBarItem.title = timeTitle
         statusBarItem.highlightMode = true
         
         statusBarItem.target = self
-        statusBarItem.action = "startCountdown"
+        statusBarItem.action = "playPause"
+        
+        resetItem.menu = statusMenu
+        resetItem.title = "Reset"
+        resetItem.highlightMode = true
+        
+        resetItem.target = self
+        resetItem.action = "reset"
         
         var ringError : NSError?
         ringPlayer = AVAudioPlayer(contentsOfURL: ring, error: &ringError)
         ringPlayer?.prepareToPlay()
 
         
-        var tickError : NSError?
-        tickPlayer = AVAudioPlayer(contentsOfURL: tick, error: &tickError)
-        tickPlayer?.prepareToPlay()
+
 
         
     }
     
-    func startCountdown() {
+    func reset() {
+        running = false
+        timer.invalidate()
+        startTime = NSTimeInterval()
+        statusBarItem.title = timeTitle
+        firstPlay = true
+        
+    }
+    
+    func playPause() {
         if !running {
             running = true
-            startTime = NSDate.timeIntervalSinceReferenceDate();
-            statusBarItem.title = "25:00"
+            if firstPlay {
+                startTime = NSDate.timeIntervalSinceReferenceDate()
+                firstPlay = false
+            }
+    
+            statusBarItem.title = timeTitle
         
             updateTime() // first time I run it manually so it doesn't skip a second
             timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateTime", userInfo: nil, repeats: true)
+            
+        } else {
+            running = false
+            timer.invalidate()
+            
         }
     }
+
     
     func updateTime() {
         var currentTime = NSDate.timeIntervalSinceReferenceDate()
@@ -83,7 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             ringPlayer?.play()
             
-            statusBarItem.title = "25:00"
+            statusBarItem.title = timeTitle
         } else {
     
             var strMinutes = minutes > 9 ? String(minutes) : "0" + String(minutes)
@@ -91,7 +115,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
             statusBarItem.title = "\(strMinutes):\(strSeconds)"
             
-            tickPlayer?.play()
 
         }
     }
