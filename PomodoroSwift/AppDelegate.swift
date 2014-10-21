@@ -63,14 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
     }
     
-    func reset() {
-        running = false
-        timer.invalidate()
-        startTime = NSTimeInterval()
-        statusBarItem.title = timeTitle
-        firstPlay = true
-        
-    }
+
     
     func playPause() {
         if !running {
@@ -86,39 +79,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateTime", userInfo: nil, repeats: true)
             
         } else {
-            running = false
-            timer.invalidate()
+            reset()
             
         }
     }
+    
 
     
     func updateTime() {
         var currentTime = NSDate.timeIntervalSinceReferenceDate()
         var elapsedTime: NSTimeInterval = currentTime - startTime
         var timeToDisplay = (NSTimeInterval)(pomodoroInterval) - elapsedTime // counting down
-
-        var minutes = (UInt8)(timeToDisplay / 60.0)
-        var seconds = (UInt8)(timeToDisplay - (NSTimeInterval(minutes) * 60))
-        
-        if minutes <= 0 && seconds <= 0 {
-            running = false
-            timer.invalidate();
-            
-            ringPlayer?.play()
-            
-            statusBarItem.title = timeTitle
+        if(timeToDisplay <= 0.0){
+            reset()
         } else {
+            var minutes = (UInt8)(timeToDisplay / 60.0)
+            var seconds = (UInt8)(timeToDisplay - (NSTimeInterval(minutes) * 60))
     
             var strMinutes = minutes > 9 ? String(minutes) : "0" + String(minutes)
             var strSeconds = seconds > 9 ? String(seconds) : "0" + String(seconds)
         
             statusBarItem.title = "\(strMinutes):\(strSeconds)"
-            
 
         }
     }
-    
+    func reset() {
+        running = false
+        timer.invalidate()
+        startTime = NSTimeInterval()
+        statusBarItem.title = timeTitle
+        firstPlay = true
+        
+    }
 
 }
 
